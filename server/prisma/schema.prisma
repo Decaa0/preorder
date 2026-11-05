@@ -7,7 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Stall {
+model Store {
   id        String     @id @default(uuid())
   name      String     @unique
   menuItems MenuItem[]
@@ -22,8 +22,8 @@ model User {
   fullName     String
   role         String    // CUSTOMER | OPERATOR
   active       Boolean   @default(true)
-  stallId      String?
-  stall        Stall?    @relation(fields: [stallId], references: [id])
+  storeId      String?
+  store        Store?    @relation(fields: [storeId], references: [id])
   sessions     Session[]
   orders       Order[]   @relation("Customer")
   accepted     Order[]   @relation("AcceptedBy")
@@ -39,8 +39,8 @@ model Session {
 
 model MenuItem {
   id         String      @id @default(uuid())
-  stallId    String
-  stall      Stall       @relation(fields: [stallId], references: [id])
+  storeId    String
+  store      Store       @relation(fields: [storeId], references: [id])
   name       String
   priceCents Int
   available  Boolean     @default(true)
@@ -51,8 +51,8 @@ model Order {
   id            String      @id @default(uuid())
   customerId    String
   customer      User        @relation("Customer", fields: [customerId], references: [id])
-  stallId       String
-  stall         Stall       @relation(fields: [stallId], references: [id])
+  storeId       String
+  store         Store       @relation(fields: [storeId], references: [id])
   status        String      @default("PLACED")
   paymentStatus String      @default("PENDING")
   totalCents    Int

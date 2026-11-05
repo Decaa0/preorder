@@ -1,0 +1,14 @@
+npm notice run preorder-server@1.0.0 npx
+npm notice run 'vitest' run
+
+ RUN  v2.1.9 /Users/yoswat/Downloads/preorder/server
+
+ ✓ tests/api/sprint1.test.ts (27 tests) 4167ms
+   ✓ F-01 authentication > TEST-04 / AC-04 token is unusable after logout 364ms
+ ✓ tests/unit/orderRules.test.ts (3 tests) 1ms
+
+ Test Files  2 passed (2)
+      Tests  30 passed (30)
+   Start at  00:20:10
+   Duration  5.78s (transform 72ms, setup 0ms, collect 671ms, tests 4.17s, environment 0ms, prepare 58ms)
+

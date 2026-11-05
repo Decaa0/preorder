@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import jwt from "jsonwebtoken";
 import { api, auth, login, menuId, prisma, resetDb, DEMO_PASSWORD } from "../helpers";
 
-const ALICE = "alice@demo.test", BOB = "bob@demo.test", NOODLE = "noodle@demo.test", DRINKS = "drinks@demo.test";
+const ALICE = "alice@demo.test", BOB = "bob@demo.test", SIAM = "siam@demo.test", LADPRAO = "ladprao@demo.test";
 
 async function placeOrder(token: string, lines: { name: string; quantity: number }[]) {
   const items = [];
@@ -46,7 +46,7 @@ describe("F-01 authentication", () => {
 
   it("TEST-23 / AC-23 anonymous requests to protected endpoints get 401 with no data", async () => {
     const t = await login(ALICE);
-    const o = await placeOrder(t, [{ name: "Pad Thai", quantity: 1 }]);
+    const o = await placeOrder(t, [{ name: "Jasmine Milk Tea", quantity: 1 }]);
     const id = o.body.id;
     const calls = [
       api().get("/api/auth/me"), api().post("/api/auth/logout"), api().get("/api/menu"),
@@ -56,7 +56,7 @@ describe("F-01 authentication", () => {
     for (const c of calls) {
       const r = await c;
       expect(r.status).toBe(401);
-      expect(JSON.stringify(r.body)).not.toContain("Pad Thai");
+      expect(JSON.stringify(r.body)).not.toContain("Jasmine Milk Tea");
       expect(r.body.error.code).toBe("UNAUTHENTICATED");
     }
   });
@@ -97,26 +97,26 @@ describe("F-01 authentication", () => {
 });
 
 describe("F-02 menu", () => {
-  it("TEST-05 / AC-05 menu lists available items with price and stall", async () => {
+  it("TEST-05 / AC-05 menu lists available items with price and store", async () => {
     const t = await login(ALICE);
     const res = await api().get("/api/menu").set(auth(t));
     expect(res.status).toBe(200);
-    const pad = res.body.find((m: any) => m.name === "Pad Thai");
+    const pad = res.body.find((m: any) => m.name === "Jasmine Milk Tea");
     expect(pad.priceCents).toBe(6000);
-    expect(pad.stall.name).toBe("Noodle Corner");
+    expect(pad.store.name).toBe("Siam Branch");
   });
 
   it("TEST-06 / AC-06 menu hides unavailable items", async () => {
     const t = await login(ALICE);
     const res = await api().get("/api/menu").set(auth(t));
-    expect(res.body.map((m: any) => m.name)).not.toContain("Sold-out Soup");
+    expect(res.body.map((m: any) => m.name)).not.toContain("Sold-out Mango Tea");
   });
 });
 
 describe("F-03 place order", () => {
   it("TEST-07 / AC-07 valid order is saved and retrievable", async () => {
     const t = await login(ALICE);
-    const res = await placeOrder(t, [{ name: "Pad Thai", quantity: 2 }, { name: "Tom Yum", quantity: 1 }]);
+    const res = await placeOrder(t, [{ name: "Jasmine Milk Tea", quantity: 2 }, { name: "Cheese Berry Tea", quantity: 1 }]);
     expect(res.status).toBe(201);
     expect(res.body.status).toBe("PLACED");
     expect(res.body.paymentStatus).toBe("PENDING");
@@ -130,7 +130,7 @@ describe("F-03 place order", () => {
 
   it("TEST-08 / AC-08 client supplied price and total are ignored", async () => {
     const t = await login(ALICE);
-    const id = await menuId("Pad Thai");
+    const id = await menuId("Jasmine Milk Tea");
     const res = await api().post("/api/orders").set(auth(t))
       .send({ total: 1, totalCents: 1, items: [{ menuItemId: id, quantity: 2, price: 1, unitPriceCents: 1 }] });
     expect(res.status).toBe(201);
@@ -140,7 +140,7 @@ describe("F-03 place order", () => {
 
   it("TEST-09 / AC-09 invalid quantities are rejected and nothing is stored", async () => {
     const t = await login(ALICE);
-    const id = await menuId("Pad Thai");
+    const id = await menuId("Jasmine Milk Tea");
     for (const q of [0, 11, 1.5, "2", -1, null]) {
       const r = await api().post("/api/orders").set(auth(t)).send({ items: [{ menuItemId: id, quantity: q }] });
       expect(r.status, `quantity ${JSON.stringify(q)}`).toBe(400);
@@ -151,7 +151,7 @@ describe("F-03 place order", () => {
 
   it("TEST-10 / AC-10 empty, too many lines and duplicate lines are rejected", async () => {
     const t = await login(ALICE);
-    const id = await menuId("Pad Thai");
+    const id = await menuId("Jasmine Milk Tea");
     const many = Array.from({ length: 11 }, (_, i) => ({ menuItemId: id + i, quantity: 1 }));
     for (const items of [[], many, [{ menuItemId: id, quantity: 1 }, { menuItemId: id, quantity: 1 }]]) {
       const r = await api().post("/api/orders").set(auth(t)).send({ items });
@@ -162,7 +162,7 @@ describe("F-03 place order", () => {
 
   it("TEST-11 / AC-11 unavailable and unknown items are rejected", async () => {
     const t = await login(ALICE);
-    const sold = await api().post("/api/orders").set(auth(t)).send({ items: [{ menuItemId: await menuId("Sold-out Soup"), quantity: 1 }] });
+    const sold = await api().post("/api/orders").set(auth(t)).send({ items: [{ menuItemId: await menuId("Sold-out Mango Tea"), quantity: 1 }] });
     expect(sold.status).toBe(400);
     expect(sold.body.error.code).toBe("ITEM_UNAVAILABLE");
     const unknown = await api().post("/api/orders").set(auth(t)).send({ items: [{ menuItemId: "nope", quantity: 1 }] });
@@ -171,33 +171,33 @@ describe("F-03 place order", () => {
     expect(await orderCount()).toBe(0);
   });
 
-  it("TEST-12 / AC-12 mixing stalls in one order is rejected", async () => {
+  it("TEST-12 / AC-12 mixing stores in one order is rejected", async () => {
     const t = await login(ALICE);
-    const r = await placeOrder(t, [{ name: "Pad Thai", quantity: 1 }, { name: "Thai Tea", quantity: 1 }]);
+    const r = await placeOrder(t, [{ name: "Jasmine Milk Tea", quantity: 1 }, { name: "Thai Milk Tea", quantity: 1 }]);
     expect(r.status).toBe(400);
-    expect(r.body.error.code).toBe("MIXED_STALLS");
+    expect(r.body.error.code).toBe("MIXED_STORES");
     expect(await orderCount()).toBe(0);
   });
 
   it("TEST-13 / AC-13 later price changes do not alter an existing order", async () => {
     const t = await login(ALICE);
-    const o = await placeOrder(t, [{ name: "Pad Thai", quantity: 2 }]);
-    await prisma.menuItem.updateMany({ where: { name: "Pad Thai" }, data: { priceCents: 9900 } });
+    const o = await placeOrder(t, [{ name: "Jasmine Milk Tea", quantity: 2 }]);
+    await prisma.menuItem.updateMany({ where: { name: "Jasmine Milk Tea" }, data: { priceCents: 9900 } });
     const d = await api().get(`/api/orders/${o.body.id}`).set(auth(t));
     expect(d.body.items[0].unitPriceCents).toBe(6000);
     expect(d.body.totalCents).toBe(12000);
   });
 
   it("TEST-21 / AC-21 operator cannot place orders", async () => {
-    const t = await login(NOODLE);
-    const r = await placeOrder(t, [{ name: "Pad Thai", quantity: 1 }]);
+    const t = await login(SIAM);
+    const r = await placeOrder(t, [{ name: "Jasmine Milk Tea", quantity: 1 }]);
     expect(r.status).toBe(403);
     expect(await orderCount()).toBe(0);
   });
 
   it("TEST-27 / AC-27 a rejected order leaves nothing behind (atomic)", async () => {
     const t = await login(ALICE);
-    const good = await menuId("Pad Thai");
+    const good = await menuId("Jasmine Milk Tea");
     const r = await api().post("/api/orders").set(auth(t)).send({ items: [{ menuItemId: good, quantity: 1 }, { menuItemId: "bad-id", quantity: 1 }] });
     expect(r.status).toBe(400);
     expect(await orderCount()).toBe(0);
@@ -208,63 +208,63 @@ describe("F-03 place order", () => {
 describe("F-04 customer orders", () => {
   it("TEST-14 / AC-14 customer list contains only own orders", async () => {
     const a = await login(ALICE), b = await login(BOB);
-    const ao = await placeOrder(a, [{ name: "Pad Thai", quantity: 1 }]);
-    await placeOrder(b, [{ name: "Tom Yum", quantity: 1 }]);
+    const ao = await placeOrder(a, [{ name: "Jasmine Milk Tea", quantity: 1 }]);
+    await placeOrder(b, [{ name: "Cheese Berry Tea", quantity: 1 }]);
     const res = await api().get("/api/orders").set(auth(a));
     expect(res.status).toBe(200);
     expect(res.body.map((o: any) => o.id)).toEqual([ao.body.id]);
   });
 
-  it("TEST-15 / AC-15 order detail has lines, total, status, stall", async () => {
+  it("TEST-15 / AC-15 order detail has lines, total, status, store", async () => {
     const a = await login(ALICE);
-    const o = await placeOrder(a, [{ name: "Tom Yum", quantity: 3 }]);
+    const o = await placeOrder(a, [{ name: "Cheese Berry Tea", quantity: 3 }]);
     const d = await api().get(`/api/orders/${o.body.id}`).set(auth(a));
-    expect(d.body).toMatchObject({ status: "PLACED", totalCents: 21000, stall: { name: "Noodle Corner" } });
-    expect(d.body.items[0]).toMatchObject({ itemName: "Tom Yum", quantity: 3, lineTotalCents: 21000 });
+    expect(d.body).toMatchObject({ status: "PLACED", totalCents: 21000, store: { name: "Siam Branch" } });
+    expect(d.body.items[0]).toMatchObject({ itemName: "Cheese Berry Tea", quantity: 3, lineTotalCents: 21000 });
   });
 
   it("TEST-16 / AC-16 another customer gets 404 and no data", async () => {
     const a = await login(ALICE), b = await login(BOB);
-    const o = await placeOrder(a, [{ name: "Pad Thai", quantity: 1 }]);
+    const o = await placeOrder(a, [{ name: "Jasmine Milk Tea", quantity: 1 }]);
     const r = await api().get(`/api/orders/${o.body.id}`).set(auth(b));
     expect(r.status).toBe(404);
-    expect(JSON.stringify(r.body)).not.toContain("Pad Thai");
+    expect(JSON.stringify(r.body)).not.toContain("Jasmine Milk Tea");
   });
 });
 
 describe("F-05 operator", () => {
-  it("TEST-17 / AC-17 operator sees only their stall's orders", async () => {
+  it("TEST-17 / AC-17 operator sees only their store's orders", async () => {
     const a = await login(ALICE);
-    const n = await placeOrder(a, [{ name: "Pad Thai", quantity: 1 }]);
-    await placeOrder(a, [{ name: "Thai Tea", quantity: 1 }]);
-    const res = await api().get("/api/orders").set(auth(await login(NOODLE)));
+    const n = await placeOrder(a, [{ name: "Jasmine Milk Tea", quantity: 1 }]);
+    await placeOrder(a, [{ name: "Thai Milk Tea", quantity: 1 }]);
+    const res = await api().get("/api/orders").set(auth(await login(SIAM)));
     expect(res.status).toBe(200);
     expect(res.body.map((o: any) => o.id)).toEqual([n.body.id]);
   });
 
   it("TEST-18 / AC-18 operator accepts a PLACED order and it persists", async () => {
-    const o = await placeOrder(await login(ALICE), [{ name: "Pad Thai", quantity: 1 }]);
-    const res = await api().post(`/api/orders/${o.body.id}/accept`).set(auth(await login(NOODLE)));
+    const o = await placeOrder(await login(ALICE), [{ name: "Jasmine Milk Tea", quantity: 1 }]);
+    const res = await api().post(`/api/orders/${o.body.id}/accept`).set(auth(await login(SIAM)));
     expect(res.status).toBe(200);
     expect(res.body.status).toBe("ACCEPTED");
     const row = await prisma.order.findUniqueOrThrow({ where: { id: o.body.id } });
-    const op = await prisma.user.findFirstOrThrow({ where: { email: NOODLE } });
+    const op = await prisma.user.findFirstOrThrow({ where: { email: SIAM } });
     expect(row.status).toBe("ACCEPTED");
     expect(row.acceptedById).toBe(op.id);
     expect(row.acceptedAt).not.toBeNull();
   });
 
-  it("TEST-19 / AC-19 operator of another stall cannot view or accept", async () => {
-    const o = await placeOrder(await login(ALICE), [{ name: "Pad Thai", quantity: 1 }]);
-    const d = await login(DRINKS);
+  it("TEST-19 / AC-19 operator of another store cannot view or accept", async () => {
+    const o = await placeOrder(await login(ALICE), [{ name: "Jasmine Milk Tea", quantity: 1 }]);
+    const d = await login(LADPRAO);
     expect((await api().get(`/api/orders/${o.body.id}`).set(auth(d))).status).toBe(404);
     expect((await api().post(`/api/orders/${o.body.id}/accept`).set(auth(d))).status).toBe(404);
     expect((await prisma.order.findUniqueOrThrow({ where: { id: o.body.id } })).status).toBe("PLACED");
   });
 
   it("TEST-20 / AC-20 accepting twice returns 409 and changes nothing", async () => {
-    const o = await placeOrder(await login(ALICE), [{ name: "Pad Thai", quantity: 1 }]);
-    const op = await login(NOODLE);
+    const o = await placeOrder(await login(ALICE), [{ name: "Jasmine Milk Tea", quantity: 1 }]);
+    const op = await login(SIAM);
     await api().post(`/api/orders/${o.body.id}/accept`).set(auth(op));
     const first = await prisma.order.findUniqueOrThrow({ where: { id: o.body.id } });
     const r = await api().post(`/api/orders/${o.body.id}/accept`).set(auth(op));
@@ -276,7 +276,7 @@ describe("F-05 operator", () => {
 
   it("TEST-22 / AC-22 customer cannot accept orders", async () => {
     const a = await login(ALICE);
-    const o = await placeOrder(a, [{ name: "Pad Thai", quantity: 1 }]);
+    const o = await placeOrder(a, [{ name: "Jasmine Milk Tea", quantity: 1 }]);
     const r = await api().post(`/api/orders/${o.body.id}/accept`).set(auth(a));
     expect(r.status).toBe(403);
     expect((await prisma.order.findUniqueOrThrow({ where: { id: o.body.id } })).status).toBe("PLACED");

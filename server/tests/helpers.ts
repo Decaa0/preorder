@@ -12,7 +12,7 @@ export async function resetDb() {
   await prisma.session.deleteMany();
   await prisma.menuItem.deleteMany();
   await prisma.user.deleteMany();
-  await prisma.stall.deleteMany();
+  await prisma.store.deleteMany();
   await seed();
 }
 

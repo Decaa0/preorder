@@ -8,19 +8,19 @@ React 18 + Vite (UI) → REST/JSON over HTTP → Express + TypeScript (API/appli
 
 ## 2. Data model
 ```
-Stall 1──* MenuItem
-Stall 1──* User(operator)         (User.stallId nullable; set only for OPERATOR)
-User(customer) 1──* Order *──1 Stall
+Store 1──* MenuItem
+Store 1──* User(operator)         (User.storeId nullable; set only for OPERATOR)
+User(customer) 1──* Order *──1 Store
 Order 1──* OrderItem *──1 MenuItem
 User 1──* Session
 ```
 | Entity | Fields / constraints |
 |---|---|
-| User | id uuid PK, email unique, passwordHash (bcrypt), fullName, role CUSTOMER\|OPERATOR, stallId? FK, active bool |
+| User | id uuid PK, email unique, passwordHash (bcrypt), fullName, role CUSTOMER\|OPERATOR, storeId? FK, active bool |
 | Session | id (= jti) PK, userId FK, expiresAt, revokedAt? |
-| Stall | id PK, name unique |
-| MenuItem | id PK, stallId FK, name, priceCents int > 0, available bool |
-| Order | id PK, customerId FK, stallId FK, status (PLACED, ACCEPTED, …), paymentStatus (PENDING), totalCents int, createdAt, acceptedAt?, acceptedById? FK |
+| Store | id PK, name unique |
+| MenuItem | id PK, storeId FK, name, priceCents int > 0, available bool |
+| Order | id PK, customerId FK, storeId FK, status (PLACED, ACCEPTED, …), paymentStatus (PENDING), totalCents int, createdAt, acceptedAt?, acceptedById? FK |
 | OrderItem | id PK, orderId FK (cascade), menuItemId FK, itemName (snapshot), unitPriceCents (snapshot), quantity int, lineTotalCents; unique(orderId, menuItemId) |
 Setup: `npm run db:push` (Prisma schema push, as in TokTickIT); seed: `npm run seed` (idempotent upserts, synthetic data).
 
@@ -37,9 +37,9 @@ JSON only, base `/api`, nouns, plural. Success returns the resource (`200/201`).
 | GET /api/auth/me, POST /api/auth/logout | ✘ 401 | ✔ | ✔ |
 | GET /api/menu | ✘ 401 | ✔ | ✔ |
 | POST /api/orders | ✘ 401 | ✔ | ✘ 403 |
-| GET /api/orders | ✘ 401 | own orders | own stall's orders |
-| GET /api/orders/:id | ✘ 401 | own only (else 404) | own stall only (else 404) |
-| POST /api/orders/:id/accept | ✘ 401 | ✘ 403 | own stall, PLACED only |
+| GET /api/orders | ✘ 401 | own orders | own store's orders |
+| GET /api/orders/:id | ✘ 401 | own only (else 404) | own store only (else 404) |
+| POST /api/orders/:id/accept | ✘ 401 | ✘ 403 | own store, PLACED only |
 
 ## 6. Authentication
 Local credentials; bcryptjs hash cost 10. Login verifies hash, creates a Session row and signs a JWT `{sub, role, jti}` valid 8 h. Each request: verify JWT signature/expiry → load Session (not revoked, not expired) → load user (active) → attach `req.user`. Role is always read from the DB user, never from the client. Logout sets `revokedAt`; the same token then returns 401. Invalid login returns the same message for unknown email and wrong password.
