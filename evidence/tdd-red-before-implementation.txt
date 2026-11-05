@@ -1,0 +1,650 @@
+npm notice run preorder-server@1.0.0 npx
+npm notice run 'vitest' run
+
+ RUN  v2.1.9 /Users/yoswat/Downloads/preorder/server
+
+ ❯ tests/api/sprint1.test.ts (27 tests | 26 failed) 1777ms
+   × F-01 authentication > TEST-01 / AC-01 valid login returns token and user without hash 81ms
+     → expected 501 to be 200 // Object.is equality
+   × F-01 authentication > TEST-02 / AC-02 wrong password and unknown email give identical 401 65ms
+     → expected 501 to be 401 // Object.is equality
+   × F-01 authentication > TEST-03 / AC-03 /me returns current user 64ms
+     → expected 501 to be 200 // Object.is equality
+   × F-01 authentication > TEST-04 / AC-04 token is unusable after logout 64ms
+     → expected 501 to be 204 // Object.is equality
+   × F-01 authentication > TEST-23 / AC-23 anonymous requests to protected endpoints get 401 with no data 66ms
+     → expected 501 to be 401 // Object.is equality
+   × F-01 authentication > TEST-25 / AC-25 expired token is rejected 66ms
+     → expected 501 to be 401 // Object.is equality
+   × F-01 authentication > TEST-26 / AC-26 errors use the standard shape without stack traces 71ms
+     → expected 'NOT_IMPLEMENTED' to be 'FORBIDDEN' // Object.is equality
+   × F-02 menu > TEST-05 / AC-05 menu lists available items with price and stall 64ms
+     → expected 501 to be 200 // Object.is equality
+   × F-02 menu > TEST-06 / AC-06 menu hides unavailable items 64ms
+     → res.body.map is not a function
+   × F-03 place order > TEST-07 / AC-07 valid order is saved and retrievable 64ms
+     → expected 501 to be 201 // Object.is equality
+   × F-03 place order > TEST-08 / AC-08 client supplied price and total are ignored 65ms
+     → expected 501 to be 201 // Object.is equality
+   × F-03 place order > TEST-09 / AC-09 invalid quantities are rejected and nothing is stored 66ms
+     → quantity 0: expected 501 to be 400 // Object.is equality
+   × F-03 place order > TEST-10 / AC-10 empty, too many lines and duplicate lines are rejected 64ms
+     → expected 501 to be 400 // Object.is equality
+   × F-03 place order > TEST-11 / AC-11 unavailable and unknown items are rejected 64ms
+     → expected 501 to be 400 // Object.is equality
+   × F-03 place order > TEST-12 / AC-12 mixing stalls in one order is rejected 63ms
+     → expected 501 to be 400 // Object.is equality
+   × F-03 place order > TEST-13 / AC-13 later price changes do not alter an existing order 65ms
+     → Cannot read properties of undefined (reading '0')
+   × F-03 place order > TEST-21 / AC-21 operator cannot place orders 66ms
+     → expected 501 to be 403 // Object.is equality
+   × F-03 place order > TEST-27 / AC-27 a rejected order leaves nothing behind (atomic) 65ms
+     → expected 501 to be 400 // Object.is equality
+   × F-04 customer orders > TEST-14 / AC-14 customer list contains only own orders 66ms
+     → expected 501 to be 200 // Object.is equality
+   × F-04 customer orders > TEST-15 / AC-15 order detail has lines, total, status, stall 66ms
+     → expected { error: { …(2) } } to match object { status: 'PLACED', …(2) }
+(3 matching properties omitted from actual)
+   × F-04 customer orders > TEST-16 / AC-16 another customer gets 404 and no data 66ms
+     → expected 501 to be 404 // Object.is equality
+   × F-05 operator > TEST-17 / AC-17 operator sees only their stall's orders 68ms
+     → expected 501 to be 200 // Object.is equality
+   × F-05 operator > TEST-18 / AC-18 operator accepts a PLACED order and it persists 65ms
+     → expected 501 to be 200 // Object.is equality
+   × F-05 operator > TEST-19 / AC-19 operator of another stall cannot view or accept 64ms
+     → expected 501 to be 404 // Object.is equality
+   × F-05 operator > TEST-20 / AC-20 accepting twice returns 409 and changes nothing 68ms
+     → 
+Invalid `prisma.order.findUniqueOrThrow()` invocation in
+/Users/yoswat/Downloads/preorder/server/tests/api/sprint1.test.ts:269:38
+
+  266 const o = await placeOrder(await login(ALICE), [{ name: "Pad Thai", quantity: 1 }]);
+  267 const op = await login(NOODLE);
+  268 await api().post(`/api/orders/${o.body.id}/accept`).set(auth(op));
+→ 269 const first = await prisma.order.findUniqueOrThrow({
+        where: {
+          id: undefined,
+      ?   AND?: OrderWhereInput | OrderWhereInput[],
+      ?   OR?: OrderWhereInput[],
+      ?   NOT?: OrderWhereInput | OrderWhereInput[],
+      ?   customerId?: StringFilter | String,
+      ?   stallId?: StringFilter | String,
+      ?   status?: StringFilter | String,
+      ?   paymentStatus?: StringFilter | String,
+      ?   totalCents?: IntFilter | Int,
+      ?   createdAt?: DateTimeFilter | DateTime,
+      ?   acceptedAt?: DateTimeNullableFilter | DateTime | Null,
+      ?   acceptedById?: StringNullableFilter | String | Null,
+      ?   customer?: UserRelationFilter | UserWhereInput,
+      ?   stall?: StallRelationFilter | StallWhereInput,
+      ?   acceptedBy?: UserNullableRelationFilter | UserWhereInput | Null,
+      ?   items?: OrderItemListRelationFilter
+        }
+      })
+
+Argument `where` of type OrderWhereUniqueInput needs at least one of `id` arguments. Available options are marked with ?.
+   × F-05 operator > TEST-22 / AC-22 customer cannot accept orders 65ms
+     → expected 501 to be 403 // Object.is equality
+ ❯ tests/unit/orderRules.test.ts (3 tests | 3 failed) 3ms
+   × orderRules (unit) > TEST-U01 computeTotal sums unit price x quantity 2ms
+     → not implemented
+   × orderRules (unit) > TEST-U02 validateOrderLines accepts valid and rejects invalid lines 0ms
+     → not implemented
+   × orderRules (unit) > TEST-U03 canAccept is true only for PLACED 0ms
+     → not implemented
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 29 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/api/sprint1.test.ts > F-01 authentication > TEST-01 / AC-01 valid login returns token and user without hash
+AssertionError: expected 501 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 501
+
+ ❯ tests/api/sprint1.test.ts:19:24
+     17|   it("TEST-01 / AC-01 valid login returns token and user without hash"…
+     18|     const res = await api().post("/api/auth/login").send({ email: ALIC…
+     19|     expect(res.status).toBe(200);
+       |                        ^
+     20|     expect(typeof res.body.token).toBe("string");
+     21|     expect(res.body.user.email).toBe(ALICE);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/29]⎯
+
+ FAIL  tests/api/sprint1.test.ts > F-01 authentication > TEST-02 / AC-02 wrong password and unknown email give identical 401
+AssertionError: expected 501 to be 401 // Object.is equality
+
+- Expected
++ Received
+
+- 401
++ 501
+
+ ❯ tests/api/sprint1.test.ts:28:22
+     26|     const a = await api().post("/api/auth/login").send({ email: ALICE,…
+     27|     const b = await api().post("/api/auth/login").send({ email: "nobod…
+     28|     expect(a.status).toBe(401); expect(b.status).toBe(401);
+       |                      ^
+     29|     expect(a.body.error.code).toBe("INVALID_CREDENTIALS");
+     30|     expect(a.body.error.message).toBe(b.body.error.message);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/29]⎯
+
+ FAIL  tests/api/sprint1.test.ts > F-01 authentication > TEST-03 / AC-03 /me returns current user
+AssertionError: expected 501 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 501
+
+ ❯ tests/api/sprint1.test.ts:36:24
+     34|     const t = await login(ALICE);
+     35|     const res = await api().get("/api/auth/me").set(auth(t));
+     36|     expect(res.status).toBe(200);
+       |                        ^
+     37|     expect(res.body.role).toBe("CUSTOMER");
+     38|     expect(res.body.email).toBe(ALICE);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/29]⎯
+
+ FAIL  tests/api/sprint1.test.ts > F-01 authentication > TEST-04 / AC-04 token is unusable after logout
+AssertionError: expected 501 to be 204 // Object.is equality
+
+- Expected
++ Received
+
+- 204
++ 501
+
+ ❯ tests/api/sprint1.test.ts:43:72
+     41|   it("TEST-04 / AC-04 token is unusable after logout", async () => {
+     42|     const t = await login(ALICE);
+     43|     expect((await api().post("/api/auth/logout").set(auth(t))).status)…
+       |                                                                        ^
+     44|     expect((await api().get("/api/auth/me").set(auth(t))).status).toBe…
+     45|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/29]⎯
+
+ FAIL  tests/api/sprint1.test.ts > F-01 authentication > TEST-23 / AC-23 anonymous requests to protected endpoints get 401 with no data
+AssertionError: expected 501 to be 401 // Object.is equality
+
+- Expected
++ Received
+
+- 401
++ 501
+
+ ❯ tests/api/sprint1.test.ts:58:24
+     56|     for (const c of calls) {
+     57|       const r = await c;
+     58|       expect(r.status).toBe(401);
+       |                        ^
+     59|       expect(JSON.stringify(r.body)).not.toContain("Pad Thai");
+     60|       expect(r.body.error.code).toBe("UNAUTHENTICATED");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/29]⎯
+
+ FAIL  tests/api/sprint1.test.ts > F-01 authentication > TEST-25 / AC-25 expired token is rejected
+AssertionError: expected 501 to be 401 // Object.is equality
+
+- Expected
++ Received
+
+- 401
++ 501
+
+ ❯ tests/api/sprint1.test.ts:77:67
+     75|     await prisma.session.create({ data: { id: "expired-jti", userId: a…
+     76|     const t = jwt.sign({ sub: alice.id, role: "CUSTOMER", jti: "expire…
+     77|     expect((await api().get("/api/auth/me").set(auth(t))).status).toBe…
+       |                                                                   ^
+     78|   });
+     79| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/29]⎯
+
+ FAIL  tests/api/sprint1.test.ts > F-01 authentication > TEST-26 / AC-26 errors use the standard shape without stack traces
+AssertionError: expected 'NOT_IMPLEMENTED' to be 'FORBIDDEN' // Object.is equality
+
+Expected: "FORBIDDEN"
+Received: "NOT_IMPLEMENTED"
+
+ ❯ tests/api/sprint1.test.ts:95:36
+     93|     }
+     94|     const accept = await api().post("/api/orders/x/accept").set(auth(t…
+     95|     expect(accept.body.error.code).toBe("FORBIDDEN");
+       |                                    ^
+     96|   });
+     97| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/29]⎯
+
+ FAIL  tests/api/sprint1.test.ts > F-02 menu > TEST-05 / AC-05 menu lists available items with price and stall
+AssertionError: expected 501 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 501
+
+ ❯ tests/api/sprint1.test.ts:103:24
+    101|     const t = await login(ALICE);
+    102|     const res = await api().get("/api/menu").set(auth(t));
+    103|     expect(res.status).toBe(200);
+       |                        ^
+    104|     const pad = res.body.find((m: any) => m.name === "Pad Thai");
+    105|     expect(pad.priceCents).toBe(6000);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/29]⎯
+
+ FAIL  tests/api/sprint1.test.ts > F-02 menu > TEST-06 / AC-06 menu hides unavailable items
+TypeError: res.body.map is not a function
+ ❯ tests/api/sprint1.test.ts:112:21
+    110|     const t = await login(ALICE);
+    111|     const res = await api().get("/api/menu").set(auth(t));
+    112|     expect(res.body.map((m: any) => m.name)).not.toContain("Sold-out S…
+       |                     ^
+    113|   });
+    114| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/29]⎯
+
+ FAIL  tests/api/sprint1.test.ts > F-03 place order > TEST-07 / AC-07 valid order is saved and retrievable
+AssertionError: expected 501 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 501
+
+ ❯ tests/api/sprint1.test.ts:120:24
+    118|     const t = await login(ALICE);
+    119|     const res = await placeOrder(t, [{ name: "Pad Thai", quantity: 2 }…
+    120|     expect(res.status).toBe(201);
+       |                        ^
+    121|     expect(res.body.status).toBe("PLACED");
+    122|     expect(res.body.paymentStatus).toBe("PENDING");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/29]⎯
+
+ FAIL  tests/api/sprint1.test.ts > F-03 place order > TEST-08 / AC-08 client supplied price and total are ignored
+AssertionError: expected 501 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 501
+
+ ❯ tests/api/sprint1.test.ts:136:24
+    134|     const res = await api().post("/api/orders").set(auth(t))
+    135|       .send({ total: 1, totalCents: 1, items: [{ menuItemId: id, quant…
+    136|     expect(res.status).toBe(201);
+       |                        ^
+    137|     expect(res.body.totalCents).toBe(12000);
+    138|     expect(res.body.items[0].unitPriceCents).toBe(6000);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/29]⎯
+
+ FAIL  tests/api/sprint1.test.ts > F-03 place order > TEST-09 / AC-09 invalid quantities are rejected and nothing is stored
+AssertionError: quantity 0: expected 501 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 501
+
+ ❯ tests/api/sprint1.test.ts:146:57
+    144|     for (const q of [0, 11, 1.5, "2", -1, null]) {
+    145|       const r = await api().post("/api/orders").set(auth(t)).send({ it…
+    146|       expect(r.status, `quantity ${JSON.stringify(q)}`).toBe(400);
+       |                                                         ^
+    147|       expect(r.body.error.code).toBe("VALIDATION_ERROR");
+    148|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/29]⎯
+
+ FAIL  tests/api/sprint1.test.ts > F-03 place order > TEST-10 / AC-10 empty, too many lines and duplicate lines are rejected
+AssertionError: expected 501 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 501
+
+ ❯ tests/api/sprint1.test.ts:158:24
+    156|     for (const items of [[], many, [{ menuItemId: id, quantity: 1 }, {…
+    157|       const r = await api().post("/api/orders").set(auth(t)).send({ it…
+    158|       expect(r.status).toBe(400);
+       |                        ^
+    159|     }
+    160|     expect(await orderCount()).toBe(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/29]⎯
+
+ FAIL  tests/api/sprint1.test.ts > F-03 place order > TEST-11 / AC-11 unavailable and unknown items are rejected
+AssertionError: expected 501 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 501
+
+ ❯ tests/api/sprint1.test.ts:166:25
+    164|     const t = await login(ALICE);
+    165|     const sold = await api().post("/api/orders").set(auth(t)).send({ i…
+    166|     expect(sold.status).toBe(400);
+       |                         ^
+    167|     expect(sold.body.error.code).toBe("ITEM_UNAVAILABLE");
+    168|     const unknown = await api().post("/api/orders").set(auth(t)).send(…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/29]⎯
+
+ FAIL  tests/api/sprint1.test.ts > F-03 place order > TEST-12 / AC-12 mixing stalls in one order is rejected
+AssertionError: expected 501 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 501
+
+ ❯ tests/api/sprint1.test.ts:177:22
+    175|     const t = await login(ALICE);
+    176|     const r = await placeOrder(t, [{ name: "Pad Thai", quantity: 1 }, …
+    177|     expect(r.status).toBe(400);
+       |                      ^
+    178|     expect(r.body.error.code).toBe("MIXED_STALLS");
+    179|     expect(await orderCount()).toBe(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/29]⎯
+
+ FAIL  tests/api/sprint1.test.ts > F-03 place order > TEST-13 / AC-13 later price changes do not alter an existing order
+TypeError: Cannot read properties of undefined (reading '0')
+ ❯ tests/api/sprint1.test.ts:187:19
+    185|     await prisma.menuItem.updateMany({ where: { name: "Pad Thai" }, da…
+    186|     const d = await api().get(`/api/orders/${o.body.id}`).set(auth(t));
+    187|     expect(d.body.items[0].unitPriceCents).toBe(6000);
+       |                   ^
+    188|     expect(d.body.totalCents).toBe(12000);
+    189|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/29]⎯
+
+ FAIL  tests/api/sprint1.test.ts > F-03 place order > TEST-21 / AC-21 operator cannot place orders
+AssertionError: expected 501 to be 403 // Object.is equality
+
+- Expected
++ Received
+
+- 403
++ 501
+
+ ❯ tests/api/sprint1.test.ts:194:22
+    192|     const t = await login(NOODLE);
+    193|     const r = await placeOrder(t, [{ name: "Pad Thai", quantity: 1 }]);
+    194|     expect(r.status).toBe(403);
+       |                      ^
+    195|     expect(await orderCount()).toBe(0);
+    196|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/29]⎯
+
+ FAIL  tests/api/sprint1.test.ts > F-03 place order > TEST-27 / AC-27 a rejected order leaves nothing behind (atomic)
+AssertionError: expected 501 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 501
+
+ ❯ tests/api/sprint1.test.ts:202:22
+    200|     const good = await menuId("Pad Thai");
+    201|     const r = await api().post("/api/orders").set(auth(t)).send({ item…
+    202|     expect(r.status).toBe(400);
+       |                      ^
+    203|     expect(await orderCount()).toBe(0);
+    204|     expect(await prisma.orderItem.count()).toBe(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/29]⎯
+
+ FAIL  tests/api/sprint1.test.ts > F-04 customer orders > TEST-14 / AC-14 customer list contains only own orders
+AssertionError: expected 501 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 501
+
+ ❯ tests/api/sprint1.test.ts:214:24
+    212|     await placeOrder(b, [{ name: "Tom Yum", quantity: 1 }]);
+    213|     const res = await api().get("/api/orders").set(auth(a));
+    214|     expect(res.status).toBe(200);
+       |                        ^
+    215|     expect(res.body.map((o: any) => o.id)).toEqual([ao.body.id]);
+    216|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/29]⎯
+
+ FAIL  tests/api/sprint1.test.ts > F-04 customer orders > TEST-15 / AC-15 order detail has lines, total, status, stall
+AssertionError: expected { error: { …(2) } } to match object { status: 'PLACED', …(2) }
+(3 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  Object {
+-   "stall": Object {
+-     "name": "Noodle Corner",
++   "error": Object {
++     "code": "NOT_IMPLEMENTED",
++     "message": "not implemented",
+    },
+-   "status": "PLACED",
+-   "totalCents": 21000,
+  }
+
+ ❯ tests/api/sprint1.test.ts:222:20
+    220|     const o = await placeOrder(a, [{ name: "Tom Yum", quantity: 3 }]);
+    221|     const d = await api().get(`/api/orders/${o.body.id}`).set(auth(a));
+    222|     expect(d.body).toMatchObject({ status: "PLACED", totalCents: 21000…
+       |                    ^
+    223|     expect(d.body.items[0]).toMatchObject({ itemName: "Tom Yum", quant…
+    224|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/29]⎯
+
+ FAIL  tests/api/sprint1.test.ts > F-04 customer orders > TEST-16 / AC-16 another customer gets 404 and no data
+AssertionError: expected 501 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 501
+
+ ❯ tests/api/sprint1.test.ts:230:22
+    228|     const o = await placeOrder(a, [{ name: "Pad Thai", quantity: 1 }]);
+    229|     const r = await api().get(`/api/orders/${o.body.id}`).set(auth(b));
+    230|     expect(r.status).toBe(404);
+       |                      ^
+    231|     expect(JSON.stringify(r.body)).not.toContain("Pad Thai");
+    232|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/29]⎯
+
+ FAIL  tests/api/sprint1.test.ts > F-05 operator > TEST-17 / AC-17 operator sees only their stall's orders
+AssertionError: expected 501 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 501
+
+ ❯ tests/api/sprint1.test.ts:241:24
+    239|     await placeOrder(a, [{ name: "Thai Tea", quantity: 1 }]);
+    240|     const res = await api().get("/api/orders").set(auth(await login(NO…
+    241|     expect(res.status).toBe(200);
+       |                        ^
+    242|     expect(res.body.map((o: any) => o.id)).toEqual([n.body.id]);
+    243|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/29]⎯
+
+ FAIL  tests/api/sprint1.test.ts > F-05 operator > TEST-18 / AC-18 operator accepts a PLACED order and it persists
+AssertionError: expected 501 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 501
+
+ ❯ tests/api/sprint1.test.ts:248:24
+    246|     const o = await placeOrder(await login(ALICE), [{ name: "Pad Thai"…
+    247|     const res = await api().post(`/api/orders/${o.body.id}/accept`).se…
+    248|     expect(res.status).toBe(200);
+       |                        ^
+    249|     expect(res.body.status).toBe("ACCEPTED");
+    250|     const row = await prisma.order.findUniqueOrThrow({ where: { id: o.…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/29]⎯
+
+ FAIL  tests/api/sprint1.test.ts > F-05 operator > TEST-19 / AC-19 operator of another stall cannot view or accept
+AssertionError: expected 501 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 501
+
+ ❯ tests/api/sprint1.test.ts:260:79
+    258|     const o = await placeOrder(await login(ALICE), [{ name: "Pad Thai"…
+    259|     const d = await login(DRINKS);
+    260|     expect((await api().get(`/api/orders/${o.body.id}`).set(auth(d))).…
+       |                                                                               ^
+    261|     expect((await api().post(`/api/orders/${o.body.id}/accept`).set(au…
+    262|     expect((await prisma.order.findUniqueOrThrow({ where: { id: o.body…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/29]⎯
+
+ FAIL  tests/api/sprint1.test.ts > F-05 operator > TEST-20 / AC-20 accepting twice returns 409 and changes nothing
+PrismaClientValidationError: 
+Invalid `prisma.order.findUniqueOrThrow()` invocation in
+/Users/yoswat/Downloads/preorder/server/tests/api/sprint1.test.ts:269:38
+
+  266 const o = await placeOrder(await login(ALICE), [{ name: "Pad Thai", quantity: 1 }]);
+  267 const op = await login(NOODLE);
+  268 await api().post(`/api/orders/${o.body.id}/accept`).set(auth(op));
+→ 269 const first = await prisma.order.findUniqueOrThrow({
+        where: {
+          id: undefined,
+      ?   AND?: OrderWhereInput | OrderWhereInput[],
+      ?   OR?: OrderWhereInput[],
+      ?   NOT?: OrderWhereInput | OrderWhereInput[],
+      ?   customerId?: StringFilter | String,
+      ?   stallId?: StringFilter | String,
+      ?   status?: StringFilter | String,
+      ?   paymentStatus?: StringFilter | String,
+      ?   totalCents?: IntFilter | Int,
+      ?   createdAt?: DateTimeFilter | DateTime,
+      ?   acceptedAt?: DateTimeNullableFilter | DateTime | Null,
+      ?   acceptedById?: StringNullableFilter | String | Null,
+      ?   customer?: UserRelationFilter | UserWhereInput,
+      ?   stall?: StallRelationFilter | StallWhereInput,
+      ?   acceptedBy?: UserNullableRelationFilter | UserWhereInput | Null,
+      ?   items?: OrderItemListRelationFilter
+        }
+      })
+
+Argument `where` of type OrderWhereUniqueInput needs at least one of `id` arguments. Available options are marked with ?.
+ ❯ wn node_modules/@prisma/client/runtime/library.js:29:1363
+ ❯ $n.handleRequestError node_modules/@prisma/client/runtime/library.js:121:6958
+ ❯ $n.handleAndLogRequestError node_modules/@prisma/client/runtime/library.js:121:6623
+ ❯ $n.request node_modules/@prisma/client/runtime/library.js:121:6307
+ ❯ l node_modules/@prisma/client/runtime/library.js:130:9633
+ ❯ node_modules/@prisma/client/runtime/library.js:31:5086
+ ❯ tests/api/sprint1.test.ts:269:19
+    267|     const op = await login(NOODLE);
+    268|     await api().post(`/api/orders/${o.body.id}/accept`).set(auth(op));
+    269|     const first = await prisma.order.findUniqueOrThrow({ where: { id: …
+       |                   ^
+    270|     const r = await api().post(`/api/orders/${o.body.id}/accept`).set(…
+    271|     expect(r.status).toBe(409);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/29]⎯
+
+ FAIL  tests/api/sprint1.test.ts > F-05 operator > TEST-22 / AC-22 customer cannot accept orders
+AssertionError: expected 501 to be 403 // Object.is equality
+
+- Expected
++ Received
+
+- 403
++ 501
+
+ ❯ tests/api/sprint1.test.ts:281:22
+    279|     const o = await placeOrder(a, [{ name: "Pad Thai", quantity: 1 }]);
+    280|     const r = await api().post(`/api/orders/${o.body.id}/accept`).set(…
+    281|     expect(r.status).toBe(403);
+       |                      ^
+    282|     expect((await prisma.order.findUniqueOrThrow({ where: { id: o.body…
+    283|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/29]⎯
+
+ FAIL  tests/unit/orderRules.test.ts > orderRules (unit) > TEST-U01 computeTotal sums unit price x quantity
+Error: not implemented
+ ❯ Module.computeTotal src/domain/orderRules.ts:1:102
+      1| export function computeTotal(_lines: { unitPriceCents: number; quantit…
+       |                                                                                                      ^
+      2| export function validateOrderLines(_items: unknown): { ok: boolean; co…
+      3| export function canAccept(_status: string): boolean { throw new Error(…
+ ❯ tests/unit/orderRules.test.ts:6:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/29]⎯
+
+ FAIL  tests/unit/orderRules.test.ts > orderRules (unit) > TEST-U02 validateOrderLines accepts valid and rejects invalid lines
+Error: not implemented
+ ❯ Module.validateOrderLines src/domain/orderRules.ts:2:111
+      1| export function computeTotal(_lines: { unitPriceCents: number; quantit…
+      2| export function validateOrderLines(_items: unknown): { ok: boolean; co…
+       |                                                                                                               ^
+      3| export function canAccept(_status: string): boolean { throw new Error(…
+      4| 
+ ❯ tests/unit/orderRules.test.ts:10:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/29]⎯
+
+ FAIL  tests/unit/orderRules.test.ts > orderRules (unit) > TEST-U03 canAccept is true only for PLACED
+Error: not implemented
+ ❯ Module.canAccept src/domain/orderRules.ts:3:61
+      1| export function computeTotal(_lines: { unitPriceCents: number; quantit…
+      2| export function validateOrderLines(_items: unknown): { ok: boolean; co…
+      3| export function canAccept(_status: string): boolean { throw new Error(…
+       |                                                             ^
+      4| 
+ ❯ tests/unit/orderRules.test.ts:28:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[29/29]⎯
+
+ Test Files  2 failed (2)
+      Tests  29 failed | 1 passed (30)
+   Start at  00:11:26
+   Duration  2.57s (transform 40ms, setup 0ms, collect 144ms, tests 1.78s, environment 0ms, prepare 42ms)
+

@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Stall {
+  id        String     @id @default(uuid())
+  name      String     @unique
+  menuItems MenuItem[]
+  operators User[]
+  orders    Order[]
+}
+
+model User {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String
+  fullName     String
+  role         String    // CUSTOMER | OPERATOR
+  active       Boolean   @default(true)
+  stallId      String?
+  stall        Stall?    @relation(fields: [stallId], references: [id])
+  sessions     Session[]
+  orders       Order[]   @relation("Customer")
+  accepted     Order[]   @relation("AcceptedBy")
+}
+
+model Session {
+  id        String    @id
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  expiresAt DateTime
+  revokedAt DateTime?
+}
+
+model MenuItem {
+  id         String      @id @default(uuid())
+  stallId    String
+  stall      Stall       @relation(fields: [stallId], references: [id])
+  name       String
+  priceCents Int
+  available  Boolean     @default(true)
+  orderItems OrderItem[]
+}
+
+model Order {
+  id            String      @id @default(uuid())
+  customerId    String
+  customer      User        @relation("Customer", fields: [customerId], references: [id])
+  stallId       String
+  stall         Stall       @relation(fields: [stallId], references: [id])
+  status        String      @default("PLACED")
+  paymentStatus String      @default("PENDING")
+  totalCents    Int
+  createdAt     DateTime    @default(now())
+  acceptedAt    DateTime?
+  acceptedById  String?
+  acceptedBy    User?       @relation("AcceptedBy", fields: [acceptedById], references: [id])
+  items         OrderItem[]
+}
+
+model OrderItem {
+  id             String   @id @default(uuid())
+  orderId        String
+  order          Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItemId     String
+  menuItem       MenuItem @relation(fields: [menuItemId], references: [id])
+  itemName       String
+  unitPriceCents Int
+  quantity       Int
+  lineTotalCents Int
+
+  @@unique([orderId, menuItemId])
+}
